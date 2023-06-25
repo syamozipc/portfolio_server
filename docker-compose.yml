@@ -1,0 +1,15 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:12-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=web_app
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - "54320:5432"
+volumes:
+  postgres:
