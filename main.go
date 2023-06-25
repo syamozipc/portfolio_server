@@ -1,71 +1,39 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
-func rootGet(w http.ResponseWriter, _ *http.Request) {
-	_, err := w.Write([]byte("home"))
-	if err != nil {
-		http.Error(w, "faild writing response", http.StatusMethodNotAllowed)
-		return
-	}
-
-	fmt.Println("home accessed")
-
-	return
+func rootGet(c echo.Context) error {
+	return c.String(http.StatusOK, "home")
 }
 
-func post(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
+type Person struct {
+	Name string
+}
 
-	var s = struct {
-		Name string `json:"name"`
-	}{}
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&s)
-	if err != nil {
-		http.Error(w, "faild parsing request body", http.StatusInternalServerError)
-		return
+func post(c echo.Context) error {
+	var p Person
+	if err := c.Bind(&p); err != nil {
+		return err
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
 
 	res := struct {
 		Message string `json:"message"`
 	}{
-		Message: fmt.Sprintf("Hello, %s", s.Name),
-	}
-	resJson, err := json.Marshal(res)
-	if err != nil {
-		http.Error(w, "failed marshaling struct", http.StatusInternalServerError)
-		return
+		Message: fmt.Sprintf("Hello, %s", p.Name),
 	}
 
-	_, err = w.Write(resJson)
-	if err != nil {
-		http.Error(w, "faild writing response body", http.StatusInternalServerError)
-		return
-	}
-
-	fmt.Println("post accessed")
-
-	return
+	return c.JSON(http.StatusCreated, res)
 }
 
 func main() {
-	http.HandleFunc("/", rootGet)
+	e := echo.New()
+	e.GET("/", rootGet)
+	e.POST("/post", post)
 
-	http.HandleFunc("/post", post)
-
-	if err := http.ListenAndServe(":8082", nil); err != nil {
-		log.Fatal(err)
-	}
+	e.Logger.Fatal(e.Start(":8082"))
 }
