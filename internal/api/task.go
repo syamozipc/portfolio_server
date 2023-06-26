@@ -7,18 +7,12 @@ import (
 
 	"github.com/syamozipc/web_app/internal/api/request"
 	"github.com/syamozipc/web_app/internal/api/response"
-	"github.com/syamozipc/web_app/internal/database"
 	"github.com/syamozipc/web_app/internal/model"
+	"github.com/syamozipc/web_app/internal/repository"
 )
 
 func ListTasks(c echo.Context) error {
-	db, err := database.SqlOpen()
-	defer func() { _ = db.Close() }()
-	if err != nil {
-		return err
-	}
-
-	rows, err := db.Query("SELECT * FROM tasks")
+	rows, err := repository.ListTasks()
 	if err != nil {
 		return err
 	}
@@ -51,24 +45,14 @@ func CreateTask(c echo.Context) error {
 		return err
 	}
 
-	db, err := database.SqlOpen()
-	defer func() { _ = db.Close() }()
+	id, err := repository.CreateTask(req.Title)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return err
 	}
 
-	var id string
-	row := db.QueryRow("INSERT INTO tasks (title) VALUES ($1) RETURNING id", req.Title)
-	if err = row.Err(); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-	if err = row.Scan(&id); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-
-	row = db.QueryRow("SELECT * FROM tasks WHERE ID = $1", id)
-	if err = row.Err(); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	row, err := repository.GetTask(id)
+	if err != nil {
+		return err
 	}
 
 	var res model.Task
