@@ -1,4 +1,4 @@
 development:
   dialect: postgres
   datasource: postgres://root:root@localhost:54320/web_app?sslmode=disable
-  dir: migrations
+  dir: internal/migrations
