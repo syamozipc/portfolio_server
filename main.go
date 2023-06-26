@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 )
@@ -21,8 +22,12 @@ type DomainTodo struct {
 	UpdatedAt time.Time
 }
 
+func SqlOpen() (*sql.DB, error) {
+	return sql.Open("postgres", "postgres://root:root@localhost:54320/web_app?sslmode=disable")
+}
+
 func ListTodos(c echo.Context) error {
-	db, err := sql.Open("postgres", "postgres://root:root@localhost:54320/web_app?sslmode=disable")
+	db, err := SqlOpen()
 	defer func() { _ = db.Close() }()
 	if err != nil {
 		return err
@@ -90,10 +95,67 @@ func ToTodoList(todos []DomainTodo) []ResTodo {
 	return res
 }
 
+type ReqCreateTodo struct {
+	Title string `json:"title" validate:"required"`
+}
+
+func CreateTodo(c echo.Context) error {
+	var req ReqCreateTodo
+	err := c.Bind(&req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if err = c.Validate(&req); err != nil {
+		return err
+	}
+
+	db, err := SqlOpen()
+	defer func() { _ = db.Close() }()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	var id string
+	row := db.QueryRow("INSERT INTO todos (title) VALUES ($1) RETURNING id", req.Title)
+	if err = row.Err(); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	if err = row.Scan(&id); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	row = db.QueryRow("SELECT * FROM todos WHERE ID = $1", id)
+	if err = row.Err(); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	var res DomainTodo
+	if err = row.Scan(&res.ID, &res.Title, &res.CreatedAt, &res.UpdatedAt); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, ToTodo(res))
+}
+
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+	if err := cv.validator.Struct(i); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return nil
+}
+
 func main() {
 	e := echo.New()
+	e.Validator = &CustomValidator{validator: validator.New()}
+
 	e.GET("/", rootGet)
 	e.GET("/todos", ListTodos)
+	e.POST("/todos", CreateTodo)
 
 	e.Logger.Fatal(e.Start(":8082"))
 }
