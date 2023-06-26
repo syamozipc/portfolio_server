@@ -11,37 +11,37 @@ import (
 	"github.com/syamozipc/web_app/internal/model"
 )
 
-func ListTodos(c echo.Context) error {
+func ListTasks(c echo.Context) error {
 	db, err := database.SqlOpen()
 	defer func() { _ = db.Close() }()
 	if err != nil {
 		return err
 	}
 
-	rows, err := db.Query("SELECT * FROM todos")
+	rows, err := db.Query("SELECT * FROM tasks")
 	if err != nil {
 		return err
 	}
 
-	var todos []model.Todo
+	var tasks []model.Task
 	for rows.Next() {
-		var t model.Todo
+		var t model.Task
 		err := rows.Scan(&t.ID, &t.Title, &t.CreatedAt, &t.UpdatedAt)
 		if err != nil {
 			return err
 		}
-		todos = append(todos, t)
+		tasks = append(tasks, t)
 	}
 
-	var res = response.TodoList{
-		List: response.ToTodoList(todos),
+	var res = response.TaskList{
+		List: response.ToTaskList(tasks),
 	}
 
 	return c.JSON(http.StatusOK, res)
 }
 
-func CreateTodo(c echo.Context) error {
-	var req request.CreateTodo
+func CreateTask(c echo.Context) error {
+	var req request.CreateTask
 	err := c.Bind(&req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -58,7 +58,7 @@ func CreateTodo(c echo.Context) error {
 	}
 
 	var id string
-	row := db.QueryRow("INSERT INTO todos (title) VALUES ($1) RETURNING id", req.Title)
+	row := db.QueryRow("INSERT INTO tasks (title) VALUES ($1) RETURNING id", req.Title)
 	if err = row.Err(); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -66,15 +66,15 @@ func CreateTodo(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	row = db.QueryRow("SELECT * FROM todos WHERE ID = $1", id)
+	row = db.QueryRow("SELECT * FROM tasks WHERE ID = $1", id)
 	if err = row.Err(); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	var res model.Todo
+	var res model.Task
 	if err = row.Scan(&res.ID, &res.Title, &res.CreatedAt, &res.UpdatedAt); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, response.ToTodo(res))
+	return c.JSON(http.StatusOK, response.ToTask(res))
 }

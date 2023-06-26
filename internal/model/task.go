@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type Todo struct {
+type Task struct {
 	ID        string
 	Title     string
 	CreatedAt time.Time
