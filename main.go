@@ -7,12 +7,8 @@ import (
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 
-	"github.com/syamozipc/web_app/internal/api"
+	"github.com/syamozipc/web_app/internal/route"
 )
-
-func rootGet(c echo.Context) error {
-	return c.String(http.StatusOK, "home")
-}
 
 type CustomValidator struct {
 	validator *validator.Validate
@@ -29,9 +25,7 @@ func main() {
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
 
-	e.GET("/", rootGet)
-	e.GET("/todos", api.ListTodos)
-	e.POST("/todos", api.CreateTodo)
+	route.Route(e)
 
 	e.Logger.Fatal(e.Start(":8082"))
 }
