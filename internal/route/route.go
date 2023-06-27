@@ -15,4 +15,5 @@ func Route(e *echo.Echo) {
 	task.GET("", api.ListTasks)
 	task.POST("", api.CreateTask)
 	task.PATCH("/:id", api.UpdateTask)
+	task.DELETE("/:id", api.DeteleTask)
 }
