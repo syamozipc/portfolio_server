@@ -10,8 +10,8 @@ import (
 )
 
 func GetTask(id string) (*sql.Row, error) {
-	db, err, closer := database.SqlOpen()
-	defer func() { _ = closer() }()
+	db, err := database.SqlOpen()
+	defer func() { _ = db.Close() }()
 	if err != nil {
 		return nil, err
 	}
@@ -25,8 +25,8 @@ func GetTask(id string) (*sql.Row, error) {
 }
 
 func ListTasks() (*sql.Rows, error) {
-	db, err, closer := database.SqlOpen()
-	defer func() { _ = closer() }()
+	db, err := database.SqlOpen()
+	defer func() { _ = db.Close() }()
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +40,8 @@ func ListTasks() (*sql.Rows, error) {
 }
 
 func CreateTask(title string) (string, error) {
-	db, err, closer := database.SqlOpen()
-	defer func() { _ = closer() }()
+	db, err := database.SqlOpen()
+	defer func() { _ = db.Close() }()
 	if err != nil {
 		return "", echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -56,4 +56,19 @@ func CreateTask(title string) (string, error) {
 	}
 
 	return id, nil
+}
+
+func UpdateTask(id, title string) error {
+	db, err := database.SqlOpen()
+	defer func() { _ = db.Close() }()
+	if err != nil {
+		return err
+	}
+
+	row := db.QueryRow("UPDATE tasks SET title = $1 WHERE id = $2", title, id)
+	if row.Err() != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return nil
 }
