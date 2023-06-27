@@ -89,3 +89,32 @@ func CreateTask(c echo.Context) error {
 
 	return c.JSON(http.StatusCreated, response.ToTask(res))
 }
+
+func UpdateTask(c echo.Context) error {
+	var req request.UpdateTask
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	if err := c.Validate(req); err != nil {
+		return err
+	}
+
+	if err := repository.UpdateTask(req.ID, req.Title); err != nil {
+		return err
+	}
+
+	row, err := repository.GetTask(req.ID)
+	if err != nil {
+		return err
+	}
+
+	var task model.Task
+	if err := row.Scan(&task.ID, &task.Title, &task.CreatedAt, &task.UpdatedAt); err != nil {
+		return err
+	}
+
+	res := response.ToTask(task)
+
+	return c.JSON(http.StatusOK, res)
+}

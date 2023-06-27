@@ -7,3 +7,8 @@ type GetTask struct {
 type CreateTask struct {
 	Title string `json:"title" validate:"required"`
 }
+
+type UpdateTask struct {
+	ID    string `param:"id" validate:"required"`
+	Title string `json:"title" validate:"required"`
+}
