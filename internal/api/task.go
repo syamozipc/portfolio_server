@@ -118,3 +118,20 @@ func UpdateTask(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, res)
 }
+
+func DeteleTask(c echo.Context) error {
+	var req request.DeteleTask
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	if err := c.Validate(req); err != nil {
+		return err
+	}
+
+	if err := repository.DeleteTask(req.ID); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusNoContent, nil)
+}

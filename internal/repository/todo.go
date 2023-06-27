@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 
@@ -10,7 +11,7 @@ import (
 )
 
 func GetTask(id string) (*sql.Row, error) {
-	db, err := database.SqlOpen()
+	db, err := database.Open()
 	defer func() { _ = db.Close() }()
 	if err != nil {
 		return nil, err
@@ -25,7 +26,7 @@ func GetTask(id string) (*sql.Row, error) {
 }
 
 func ListTasks() (*sql.Rows, error) {
-	db, err := database.SqlOpen()
+	db, err := database.Open()
 	defer func() { _ = db.Close() }()
 	if err != nil {
 		return nil, err
@@ -40,7 +41,7 @@ func ListTasks() (*sql.Rows, error) {
 }
 
 func CreateTask(title string) (string, error) {
-	db, err := database.SqlOpen()
+	db, err := database.Open()
 	defer func() { _ = db.Close() }()
 	if err != nil {
 		return "", echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -59,15 +60,30 @@ func CreateTask(title string) (string, error) {
 }
 
 func UpdateTask(id, title string) error {
-	db, err := database.SqlOpen()
+	db, err := database.Open()
 	defer func() { _ = db.Close() }()
 	if err != nil {
 		return err
 	}
 
-	row := db.QueryRow("UPDATE tasks SET title = $1 WHERE id = $2", title, id)
+	row := db.QueryRow("UPDATE tasks SET title = $1, updated_at = $2 WHERE id = $3", title, time.Now(), id)
 	if row.Err() != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return nil
+}
+
+func DeleteTask(id string) error {
+	db, err := database.Open()
+	defer func() { _ = db.Close() }()
+	if err != nil {
+		return err
+	}
+
+	row := db.QueryRow("DELETE FROM tasks WHERE id = $1", id)
+	if row.Err() != nil {
+		return row.Err()
 	}
 
 	return nil

@@ -1,9 +1,6 @@
 サンプルアプリ
 
 次やること
-- update
-- show
-- delete
 - cobra入れる
 - sql-migrate upをgo run main.go upとしてソースコードに実装
 - sqlのコネクションはmiddlewareあたりでやる？（repository単位でやらない）
