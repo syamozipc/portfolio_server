@@ -7,7 +7,11 @@ import (
 )
 
 func Route(e *echo.Echo) {
-	e.GET("/", api.Home)
-	e.GET("/tasks", api.ListTasks)
-	e.POST("/tasks", api.CreateTask)
+	base := e.Group("/api")
+	base.GET("", api.Root)
+
+	task := base.Group("/tasks")
+	task.GET("/:id", api.GetTask)
+	task.GET("", api.ListTasks)
+	task.POST("", api.CreateTask)
 }

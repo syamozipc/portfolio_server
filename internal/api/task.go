@@ -11,6 +11,33 @@ import (
 	"github.com/syamozipc/web_app/internal/repository"
 )
 
+func GetTask(c echo.Context) error {
+	var req request.GetTask
+
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	if err := c.Validate(req); err != nil {
+		return err
+	}
+
+	row, err := repository.GetTask(req.ID)
+
+	if err != nil {
+		return err
+	}
+
+	var task model.Task
+	if err := row.Scan(&task.ID, &task.Title, &task.CreatedAt, &task.UpdatedAt); err != nil {
+		return err
+	}
+
+	res := response.ToTask(task)
+
+	return c.JSON(http.StatusOK, res)
+}
+
 func ListTasks(c echo.Context) error {
 	rows, err := repository.ListTasks()
 	if err != nil {
@@ -60,5 +87,5 @@ func CreateTask(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, response.ToTask(res))
+	return c.JSON(http.StatusCreated, response.ToTask(res))
 }
