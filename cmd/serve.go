@@ -31,7 +31,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	return nil
 }
 
-func serve(cmd *cobra.Command, args []string) error {
+func serve(_ *cobra.Command, _ []string) error {
 	e := echo.New()
 
 	e.Validator = &CustomValidator{validator: validator.New()}
