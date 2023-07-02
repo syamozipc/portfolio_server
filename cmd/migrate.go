@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+
 	"github.com/syamozipc/web_app/internal/database"
 )
 
@@ -15,7 +16,7 @@ func init() {
 	rootCmd.AddCommand(migrateCmd)
 }
 
-func migrate(cmd *cobra.Command, args []string) error {
+func migrate(_ *cobra.Command, _ []string) error {
 	if err := database.MigrateUp(); err != nil {
 		return err
 	}

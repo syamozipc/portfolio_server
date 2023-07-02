@@ -1,18 +1,15 @@
 package database
 
 import (
-	"database/sql"
-
 	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func Open() (*sql.DB, error) {
-	db, err := sql.Open("postgres", "postgres://root:root@localhost:54320/web_app?sslmode=disable")
+func Open() (*gorm.DB, error) {
+	dsn := "postgres://root:root@localhost:54320/web_app?sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		return nil, err
-	}
-
-	if err := db.Ping(); err != nil {
 		return nil, err
 	}
 
