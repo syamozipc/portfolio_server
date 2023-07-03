@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/cobra"
 
 	"github.com/syamozipc/web_app/internal/database"
@@ -38,6 +39,8 @@ func serve(_ *cobra.Command, _ []string) error {
 	}
 
 	e := echo.New()
+	// TODO: urlとか決まったら、CORSWithConfigで詳細を指定
+	e.Use(middleware.CORS())
 
 	e.Validator = &CustomValidator{validator: validator.New()}
 	route.Route(e)
