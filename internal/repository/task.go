@@ -10,10 +10,7 @@ import (
 )
 
 func GetTask(id string) (*model.Task, error) {
-	db, err := database.Open()
-	if err != nil {
-		return nil, err
-	}
+	db := database.Pool()
 
 	var task model.Task
 	if err := db.Debug().Where("id = ?", id).First(&task).Error; err != nil {
@@ -24,10 +21,7 @@ func GetTask(id string) (*model.Task, error) {
 }
 
 func ListTasks() ([]model.Task, error) {
-	db, err := database.Open()
-	if err != nil {
-		return nil, err
-	}
+	db := database.Pool()
 
 	var tasks []model.Task
 	if err := db.Debug().Find(&tasks).Error; err != nil {
@@ -38,10 +32,7 @@ func ListTasks() ([]model.Task, error) {
 }
 
 func CreateTask(title string) (string, error) {
-	db, err := database.Open()
-	if err != nil {
-		return "", err
-	}
+	db := database.Pool()
 
 	var task = model.Task{ID: uuid.NewString(), Title: title}
 	if err := db.Debug().Create(&task).Error; err != nil {
@@ -52,10 +43,7 @@ func CreateTask(title string) (string, error) {
 }
 
 func UpdateTask(id, title string) error {
-	db, err := database.Open()
-	if err != nil {
-		return err
-	}
+	db := database.Pool()
 
 	var task = model.Task{ID: id, Title: title, UpdatedAt: time.Now()}
 	if err := db.Debug().Updates(&task).Error; err != nil {
@@ -66,10 +54,7 @@ func UpdateTask(id, title string) error {
 }
 
 func DeleteTask(id string) error {
-	db, err := database.Open()
-	if err != nil {
-		return err
-	}
+	db := database.Pool()
 
 	var task = model.Task{ID: id}
 	if err := db.Debug().Delete(task).Error; err != nil {
