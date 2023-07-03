@@ -1,9 +1,9 @@
 サンプルアプリ
 
 次やること
-- Gorm導入
-  - nullableなカラムを作成してnull〇〇を作る
-  - 1つのinstanceに絞る（context？）
+- nullableなカラムを作成してnull〇〇を作る
+- usersテーブルを作る
+- dbインスタンスの使い回しはcontextにする？（apiリクエストごとに別goroutineが起動するので、グローバル変数ではダメ？）
 - migrateは別sqlインスタンスで良いのか？
 - interface導入
 - テスト実装

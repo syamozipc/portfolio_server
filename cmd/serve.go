@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 
+	"github.com/syamozipc/web_app/internal/database"
 	"github.com/syamozipc/web_app/internal/route"
 )
 
@@ -32,6 +33,10 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 }
 
 func serve(_ *cobra.Command, _ []string) error {
+	if err := database.Open(); err != nil {
+		return err
+	}
+
 	e := echo.New()
 
 	e.Validator = &CustomValidator{validator: validator.New()}
