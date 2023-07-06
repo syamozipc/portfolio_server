@@ -1,7 +1,10 @@
 package database
 
 import (
+	"fmt"
+
 	_ "github.com/lib/pq"
+	"github.com/syamozipc/web_app/internal/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -14,7 +17,13 @@ var pool *gorm.DB
 
 // TODO: 関数の外の値を書き換えない形にしたい（contextにつめる？）
 func Open() error {
-	dsn := "postgres://root:root@localhost:54320/web_app?sslmode=disable"
+	cfg, err := config.New()
+	if err != nil {
+		return err
+	}
+
+	dsn := fmt.Sprintf("%s://%s:%s@%s:%d/%s?sslmode=disable", cfg.Driver, cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Name)
+	fmt.Println(dsn)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return err
