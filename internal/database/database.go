@@ -22,7 +22,7 @@ func Open() error {
 		return err
 	}
 
-	dsn := fmt.Sprintf("%s://%s:%s@%s:%d/%s?sslmode=disable", cfg.Driver, cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Name)
+	dsn := fmt.Sprintf("%s://%s:%s@%s:%d/%s?sslmode=disable", cfg.DB.Driver, cfg.DB.User, cfg.DB.Password, cfg.DB.Host, cfg.DB.Port, cfg.DB.Name)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return err

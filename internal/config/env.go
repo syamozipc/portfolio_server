@@ -3,12 +3,17 @@ package config
 import "github.com/caarlos0/env/v6"
 
 type Config struct {
-	Driver   string `env:"DB_DRIVER" envDefault:"postgres"`
-	Host     string `env:"DB_HOST" envDefault:"localhost"`
-	Port     int    `env:"DB_PORT" envDefault:"54320"`
-	Name     string `env:"DB_NAME" envDefault:"web_app"`
-	User     string `env:"DB_USER" envDefault:"root"`
-	Password string `env:"DB_PASSWORD" envDefault:"root"`
+	DB struct {
+		Driver   string `env:"DB_DRIVER" envDefault:"postgres"`
+		Host     string `env:"DB_HOST" envDefault:"localhost"`
+		Port     int    `env:"DB_PORT" envDefault:"54320"`
+		Name     string `env:"DB_NAME" envDefault:"web_app"`
+		User     string `env:"DB_USER" envDefault:"root"`
+		Password string `env:"DB_PASSWORD" envDefault:"root"`
+	}
+	Server struct {
+		Port int `env:"SERVER_PORT" envDefault:"8082"`
+	}
 }
 
 func New() (*Config, error) {
