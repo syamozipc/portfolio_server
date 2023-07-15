@@ -12,7 +12,7 @@ type Config struct {
 		Password string `env:"DB_PASSWORD" envDefault:"root"`
 	}
 	Server struct {
-		Port int `env:"SERVER_PORT" envDefault:"8082"`
+		Port int `env:"SERVER_PORT" envDefault:"8080"`
 	}
 }
 
