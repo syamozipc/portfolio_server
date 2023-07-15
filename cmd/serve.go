@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator"
@@ -8,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/cobra"
 
+	"github.com/syamozipc/web_app/internal/config"
 	"github.com/syamozipc/web_app/internal/database"
 	"github.com/syamozipc/web_app/internal/route"
 )
@@ -45,5 +47,10 @@ func serve(_ *cobra.Command, _ []string) error {
 	e.Validator = &CustomValidator{validator: validator.New()}
 	route.Route(e)
 
-	return e.Start(":8082")
+	config, err := config.New()
+	if err != nil {
+		return err
+	}
+
+	return e.Start(fmt.Sprintf(":%d", config.Server.Port))
 }
