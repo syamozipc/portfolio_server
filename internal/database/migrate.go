@@ -21,7 +21,7 @@ func MigrateUp() error {
 	}
 
 	migrations := &migrate.FileMigrationSource{
-		Dir: "internal/migrations",
+		Dir: "migrations",
 	}
 
 	n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
