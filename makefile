@@ -13,3 +13,8 @@ run:
 .PHONY: migrate
 migrate:
 	go run main.go migrate
+
+# EC2で使用しているAmazon Linuxで動かせるよう環境を指定
+.PHONY: build
+build:
+	GOOS=linux GOARCH=amd64 go build main.go
